@@ -18,10 +18,6 @@ public class GoodsController {
 	@Autowired
 	RedisService redisService;
 	
-    @RequestMapping("/to_list")
-    public String list(Model model,MiaoshaUser user) {
-    	model.addAttribute("user", user);
-        return "goods_list";
-    }
+
     
 }
