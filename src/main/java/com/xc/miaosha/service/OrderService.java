@@ -27,6 +27,10 @@ public class OrderService {
 		return redisService.get(OrderKey.getMiaoshaOrderByUidGid, "" + userId + "_" + goodsId, MiaoshaOrder.class);
 	}
 
+	public OrderInfo getOrderById(long orderId) {
+		return orderDao.getOrderById(orderId);
+	}
+
 	@Transactional
 	public OrderInfo createOrder(MiaoshaUser user, GoodsVo goods) {
 		OrderInfo orderInfo = new OrderInfo();
@@ -49,6 +53,11 @@ public class OrderService {
 		redisService.set(OrderKey.getMiaoshaOrderByUidGid, "" + user.getId() + "_" + goods.getId(), miaoshaOrder);
 
 		return orderInfo;
+	}
+
+	public void deleteOrders() {
+		orderDao.deleteOrders();
+		orderDao.deleteMiaoshaOrders();
 	}
 	
 }
