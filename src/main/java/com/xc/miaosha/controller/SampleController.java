@@ -1,6 +1,7 @@
 package com.xc.miaosha.controller;
 
 import com.xc.miaosha.domain.User;
+import com.xc.miaosha.rabbitmq.MQSender;
 import com.xc.miaosha.redis.RedisService;
 import com.xc.miaosha.redis.UserKey;
 import com.xc.miaosha.result.CodeMsg;
@@ -23,11 +24,36 @@ public class SampleController {
     @Autowired
     RedisService redisService;
 
+    @Autowired
+    MQSender sender;
+
     @RequestMapping("/thymeleaf")
     public String thymeleaf(Model model) {
         model.addAttribute("name", "xc");
         return "hello";
     }
+
+    @RequestMapping("/mq/fanout")
+    @ResponseBody
+    public Result<String> fanout() {
+        sender.sendFanout("hello,imooc");
+        return Result.success("Hello，world");
+    }
+//
+//	@RequestMapping("/mq/topic")
+//    @ResponseBody
+//    public Result<String> topic() {
+//		sender.sendTopic("hello,imooc");
+//        return Result.success("Hello，world");
+//    }
+//
+//	@RequestMapping("/mq")
+//    @ResponseBody
+//    public Result<String> mq() {
+//		sender.send("hello,imooc");
+//        return Result.success("Hello，world");
+//    }
+
 
     @RequestMapping("/hello")
     @ResponseBody
