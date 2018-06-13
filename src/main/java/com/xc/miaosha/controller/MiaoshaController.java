@@ -6,6 +6,8 @@ import com.xc.miaosha.domain.OrderInfo;
 import com.xc.miaosha.rabbitmq.MQSender;
 import com.xc.miaosha.rabbitmq.MiaoshaMessage;
 import com.xc.miaosha.redis.GoodsKey;
+import com.xc.miaosha.redis.MiaoshaKey;
+import com.xc.miaosha.redis.OrderKey;
 import com.xc.miaosha.redis.RedisService;
 import com.xc.miaosha.result.CodeMsg;
 import com.xc.miaosha.result.Result;
@@ -53,9 +55,25 @@ public class MiaoshaController implements InitializingBean {
 
     private HashMap<Long, Boolean> localOverMap =  new HashMap<Long, Boolean>();
 
+    @RequestMapping(value="/reset", method=RequestMethod.GET)
+    @ResponseBody
+    public Result<Boolean> reset(Model model) {
+        List<GoodsVo> goodsList = goodsService.listGoodsVo();
+        for(GoodsVo goods : goodsList) {
+            goods.setStockCount(10);
+            redisService.set(GoodsKey.getMiaoshaGoodsStock, ""+goods.getId(), 10);
+            localOverMap.put(goods.getId(), false);
+        }
+        redisService.delete(OrderKey.getMiaoshaOrderByUidGid);
+        redisService.delete(MiaoshaKey.isGoodsOver);
+        miaoshaService.reset(goodsList);
+        return Result.success(true);
+    }
+
     @RequestMapping("/do_miaosha")
-    public Result<Integer> list(Model model, MiaoshaUser user,
-                       @RequestParam("goodsId") long goodsId) {
+    @ResponseBody
+    public Result<Integer> miaosha(Model model,MiaoshaUser user,
+                                   @RequestParam("goodsId")long goodsId) {
         model.addAttribute("user", user);
         if (user == null) {
             return Result.error(CodeMsg.SESSION_ERROR);
